@@ -113,10 +113,7 @@ Steps:
 <!-- #endregion -->
 
 ```scala
-// DONE students
-rddMovies.filter(m => m.title.contains("City"))
-         .map(m => m.title)
-         .foreach(println)
+// TODO students
 ```
 
 <!-- #region -->
@@ -146,14 +143,6 @@ Steps:
 
 ```scala
 // TODO student
-//rddMovies.take(10).map(m => m.rating).foreach(println)
-val rateMin = 0
-val rateMax = 5
-rddMovies.filter(m => m.rating > rateMin && m.rating <= rateMax)
-         .sortBy(m => m.rating,true)
-         .map(m => m.rating + " - " + m.title)
-         .take(10)
-         .foreach(println)
 ```
 
 <!-- #region -->
@@ -206,13 +195,7 @@ Steps:
 <!-- #endregion -->
 
 ```scala
-// DONE student
-rddMovies.flatMap(m => m.genres)
-         .map(m => (m,1))
-         .reduceByKey(_+_)
-         .sortBy(m => m._2,false)
-         .map(m => m._1 + " (" + m._2 +")")
-         .foreach(println)
+// TODO student
 ```
 
 <!-- #region -->
@@ -267,13 +250,7 @@ Steps:
 <!-- #endregion -->
 
 ```scala
-// DONE student
-rddMovies.map(m => (m.year, (m.votes, 1)))
-         .reduceByKey((m1, m2) => (m1._1 + m2._1, m1._2 + m2._2))
-         .map(m => (m._1, m._2._1 / m._2._2.toDouble))
-         .sortBy(m => m._2, false)
-         .map(m => "year: " + m._1 + "\tavarage votes: " + m._2)
-         .foreach(println)
+// TODO student
 ```
 
 ## Part 2 - Create a basic Inverted Index
@@ -311,7 +288,7 @@ Steps
 <!-- #endregion -->
 
 ```scala
-/**
+    /**
     * Goal: create an inverted index that allows searching a word
     * in the movies description.
     * Features:
@@ -327,12 +304,12 @@ Steps
         
         // Split the given string into an array of words (without any formatting), then return it.
         def tokenizeDescription(description: String): Seq[String] = {
-            description.split(" ")
+            // TODO student
         }
         
         // Remove the blank spaces (trim) in the given word, transform it in lowercase, then return it.
         def normalizeWord(word: String): String = {
-            word.trim().toLowerCase()
+            // TODO student
         }
         
         // For the sake of simplicity let's ignore the implementation (in a real case we would return true if w is a stopword, otherwise false).
@@ -358,20 +335,14 @@ Steps
        //          ("toto", 120), ("mange", 120), ("des", 120), ("pommes", 120),
        //          ("toto", 121), ("lance", 121), ("des", 121), ("photocopies", 121)
        //        ]
-       //      Hint: you can use a map function inside another map function.
+       //      Hint: you can use a `map` function inside another `map` function.
        //   3) We finally need to find a way to remove duplicated keys and thus only having one entry per key, with all the linked IDs as values. For example:
        //        [
        //          ("toto", [120, 121]),
        //          ("mange", [120]),
        //          ...
-       //        ]        
-       val invertedIndex = rddMovies
-        .flatMap(m => tokenizeDescription(m.description)
-        .map(m => applyStemming(m)) //Juste ?
-        .filter(m => !isStopWord(m)) // Juste ?
-        .map(a => (a, m.id)))
-        .groupByKey()
-        
+       //        ]
+       val invertedIndex = ...
 
        // Return the new-built inverted index.
        invertedIndex
@@ -381,16 +352,14 @@ Steps
 Now we would like to use our inverted index to display the top N most used words in the descriptions of movies.
 
 ```scala
-// DONE student
+// TODO student
 // Here we are going to operate the analytic and display its result on a given inverted index (that will be obtained from the previous function).
 def topN(invertedIndex: RDD[(String, Iterable[Int])], N: Int): Unit = {
-  // DONE student
+  // TODO student
   // We are going to work on the given invertedIndex array to do our analytic:
   //   1) Find a way to get the number of movie in which a word appears.
   //   2) Keep only the top N words and their occurence.
-  val topMovies = invertedIndex.map(m => (m._1, m._2.size))
-                               .sortBy(m => m._2,false)
-                               .take(N)
+  val topMovies = ...
   
   // Print the words and the number of descriptions in which they appear.
   println("Top '" + N + "' most used words")
@@ -425,16 +394,7 @@ For all of the following exercices, write your queries in two different ways:
 * Show the first 10 lines of the moviesDF as a table
 
 ```scala
-//DONE students
-
-//Dataframe API
-moviesDF.printSchema()
-moviesDF.show(10)
-
-//SQL literal
-moviesDF.createOrReplaceTempView("movie")
-spark.sql("SELECT * FROM movie limit 10")
-     .show()
+// TODO students
 ```
 
 ### Exercice 2 - Get the movies (id, title, votes, director) whose title contains "City" 
@@ -446,36 +406,13 @@ Apply two different ways:
 
 
 ```scala
-// Done students
-
-//Dataframe API
-moviesDF.select("rank","title","votes","director")
-        .where(col("title").contains("City"))
-        .show(false)
-
-//Literal sql
-// Register the DataFrame as a SQL temporary view
-moviesDF.createOrReplaceTempView("movie")
-spark.sql("SELECT movie.Rank as id, movie.title,movie.votes,movie.director FROM movie WHERE movie.title LIKE '%City%'")
-     .show(false)
+// TODO students
 ```
 
 ### Exercice 3 - Get the number of movies which have a number of votes between 500 and 2000 (inclusive range)
 
 ```scala
-// DONE students
-
-//Dataframe API
-val numberOfMovies = moviesDF.select("*")
-                             .where(col("votes") >= 500 && col("votes") <= 2000)
-                             .count()
-println("+--------+\n|count(1)|\n+--------+\n|      "+numberOfMovies+"|\n+--------+\n")
-
-//SQL literal
-// Register the DataFrame as a SQL temporary view
-moviesDF.createOrReplaceTempView("movie")
-spark.sql("SELECT count(*) FROM movie WHERE movie.votes BETWEEN 500 AND 2000")
-     .show()
+// TODO students
 ```
 
 ### Exercice 4 - Get the minimum, maximum and average rating of films per director. Sort the results by minimum rating.  
