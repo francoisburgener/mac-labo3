@@ -417,6 +417,10 @@ For all of the following exercices, write your queries in two different ways:
 * using the sql literal 
 * using DataFrame API (select, where, etc.)
 
+```scala
+// Register the DataFrame as a SQL temporary view
+moviesDF.createOrReplaceTempView("movie")
+```
 
 ### Exercice 1 - Use the moviesDF DataFrame
 
@@ -432,8 +436,13 @@ moviesDF.printSchema()
 moviesDF.show(10)
 
 //SQL literal
-moviesDF.createOrReplaceTempView("movie")
-spark.sql("SELECT * FROM movie limit 10")
+spark.sql(
+    """
+    SELECT * 
+    FROM movie 
+    LIMIT 10
+    """
+)
      .show()
 ```
 
@@ -453,10 +462,14 @@ moviesDF.select("rank","title","votes","director")
         .where(col("title").contains("City"))
         .show(false)
 
-//Literal sql
-// Register the DataFrame as a SQL temporary view
-moviesDF.createOrReplaceTempView("movie")
-spark.sql("SELECT movie.Rank as id, movie.title,movie.votes,movie.director FROM movie WHERE movie.title LIKE '%City%'")
+//SQL literal
+spark.sql(
+    """
+    SELECT movie.Rank as id, movie.title,movie.votes,movie.director 
+    FROM movie 
+    WHERE movie.title LIKE '%City%'
+    """
+)
      .show(false)
 ```
 
@@ -469,19 +482,48 @@ spark.sql("SELECT movie.Rank as id, movie.title,movie.votes,movie.director FROM 
 val numberOfMovies = moviesDF.select("*")
                              .where(col("votes") >= 500 && col("votes") <= 2000)
                              .count()
-println("+--------+\n|count(1)|\n+--------+\n|      "+numberOfMovies+"|\n+--------+\n")
+println("Number of movies which have a number of votes between 500 and 2000 : " + numberOfMovies)
 
 //SQL literal
-// Register the DataFrame as a SQL temporary view
-moviesDF.createOrReplaceTempView("movie")
-spark.sql("SELECT count(*) FROM movie WHERE movie.votes BETWEEN 500 AND 2000")
+spark.sql(
+    """
+    SELECT count(*) 
+    FROM movie 
+    WHERE movie.votes BETWEEN 500 AND 2000
+    """
+)
      .show()
 ```
 
 ### Exercice 4 - Get the minimum, maximum and average rating of films per director. Sort the results by minimum rating.  
 
 ```scala
-// TODO students
+// DONE students
+
+//Dataframe API
+moviesDF.select("director","rating")
+        .groupBy("director")
+        .agg(min("rating").as("min"),
+             max("rating").as("max"),
+             avg("rating").as("avg"))
+        .orderBy("min")
+        .show()
+
+//SQL literal
+spark.sql(
+    """
+    SELECT 
+        movie.director,
+        min(movie.rating) as min, 
+        max(movie.rating) as max, 
+        avg(movie.rating) as avg 
+    FROM movie 
+    GROUP BY movie.director 
+    ORDER BY min ASC
+    """
+)
+     .show()
+
 ```
 
 <!-- #region -->
@@ -502,6 +544,26 @@ spark.sql("SELECT count(*) FROM movie WHERE movie.votes BETWEEN 500 AND 2000")
 
 ```scala
 // TODO students
+
+//Dataframe API
+
+//SQL literal
+spark.sql(
+    """
+    SELECT
+        FIRST_VALUE(movie.title) OVER(
+            PARTITION BY movie.year
+            ORDER BY movie.rating ASC
+        ),
+        movie.year,
+        min(movie.rating) as min
+    FROM movie
+    GROUP BY movie.year
+    ORDER BY min ASC
+    """
+)
+     .show(false)
+
 ```
 
 <!-- #region -->
