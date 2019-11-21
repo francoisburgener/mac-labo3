@@ -546,23 +546,31 @@ spark.sql(
 // TODO students
 
 //Dataframe API
+//Dataframe API
+moviesDF.select("title","year","rating")
 
 //SQL literal
 spark.sql(
     """
     SELECT
-        FIRST_VALUE(movie.title) OVER(
-            PARTITION BY movie.year
-            ORDER BY movie.rating ASC
-        ),
-        movie.year,
-        min(movie.rating) as min
-    FROM movie
-    GROUP BY movie.year
-    ORDER BY min ASC
+        m1.title,
+        m1.year,
+        m1.rating
+    FROM movie as m1
+    INNER JOIN (
+        SELECT year, min(rating) as min
+        FROM movie 
+        GROUP BY year
+    ) m2 ON m1.year = m2.year AND m2.min = m1.rating
+    ORDER BY m2.min ASC
+    
     """
 )
      .show(false)
+
+
+
+
 
 ```
 
@@ -589,6 +597,10 @@ Note that when using the dataframe API:
 
 ```scala
 // TODO students
+//Dataframe API
+
+//SQL literal
+
 ```
 
 ```scala
