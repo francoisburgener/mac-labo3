@@ -543,11 +543,20 @@ spark.sql(
 <!-- #endregion -->
 
 ```scala
-// TODO students
+// DONE students
 
 //Dataframe API
 //Dataframe API
-moviesDF.select("title","year","rating")
+moviesDF.select(col("title"),col("year"),col("rating"))
+        .join(
+            moviesDF.select(col("year").as("secondYear"),col("rating"))
+                    .groupBy("secondYear")
+                    .agg(min("rating").as("min")
+        ),col("year").equalTo(col("secondYear")) && col("rating").equalTo(col("min")) //Conditon of join
+        ,"inner") //Type of join
+        .drop("secondYear","min") //Drop the duplicate column
+        .orderBy("min")
+        .show(false)
 
 //SQL literal
 spark.sql(
