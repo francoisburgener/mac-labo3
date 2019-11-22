@@ -145,8 +145,7 @@ Steps:
 <!-- #endregion -->
 
 ```scala
-// TODO student
-//rddMovies.take(10).map(m => m.rating).foreach(println)
+// DONE student
 val rateMin = 0
 val rateMax = 5
 rddMovies.filter(m => m.rating > rateMin && m.rating <= rateMax)
@@ -347,7 +346,7 @@ Steps
           w
         }
       
-       // TODO student
+       // DONE student
        // Here we are going to work on the movies RDD, by tokenizing and normalizing the description of every movie, then by building a key-value object that contains the tokens as keys, and the IDs of the movies as values
        // (see the example on 4).
        // The goal here is to do everything by chaining the possible transformations and actions of Spark.
@@ -545,17 +544,16 @@ spark.sql(
 ```scala
 // DONE students
 
-//Dataframe API
-//Dataframe API
+//Dataframe API  -> CHECK !
 moviesDF.select(col("title"),col("year"),col("rating"))
         .join(
-            moviesDF.select(col("year").as("secondYear"),col("rating"))
-                    .groupBy("secondYear")
-                    .agg(min("rating").as("min")
-        ),col("year").equalTo(col("secondYear")) && col("rating").equalTo(col("min")) //Conditon of join
+            moviesDF.select(col("year").as("secondYear"),col("rating")) //---------------
+                    .groupBy("secondYear")                              // Second request
+                    .agg(min("rating").as("min"))                       //---------------
+        ,col("year").equalTo(col("secondYear")) && col("rating").equalTo(col("min")) //Conditon of join
         ,"inner") //Type of join
-        .drop("secondYear","min") //Drop the duplicate column
-        .orderBy("min")
+        .drop("secondYear","min") // Remove duplicate column year and min of the display
+        .orderBy("min") //
         .show(false)
 
 //SQL literal
@@ -605,11 +603,29 @@ Note that when using the dataframe API:
 <!-- #endregion -->
 
 ```scala
-// TODO students
-//Dataframe API
+// DONE students
+//Dataframe API -> CHECK !
+moviesDF.select(col("director"),col("title").as("title1"))
+        .join(moviesDF.select(col("director").as("director1"),col("title").as("title2"))
+        ,col("director1").equalTo(col("director")) //Conditon of join
+        ,"inner") //Type of join
+        .drop("director1") // Remove duplicate column director of the display
+        .where(col("title1") !== col("title2"))
+        .show(false)
 
 //SQL literal
-
+spark.sql(
+    """
+    SELECT 
+        m.director, 
+        m.title as title1, 
+        m2.title as title2
+    FROM movie AS m
+    INNER JOIN movie AS m2 ON m2.director = m.director
+    WHERE m.title != m2.title
+    """
+)
+    .show(false)
 ```
 
 ```scala
